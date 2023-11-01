@@ -1,14 +1,15 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="text-xl font-semibold leading-tight text-gray-800">
             User Roles
         </h2>
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
-                <div class="flex justify-between items-center p-5 text-lg font-semibold text-left text-gray-900 bg-white dark:text-white dark:bg-gray-800">
+        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <div
+                    class="flex items-center justify-between p-5 text-lg font-semibold text-left text-gray-900 bg-white dark:text-white dark:bg-gray-800">
                     <h2 class="">All Roles
                         <span class="bg-blue-500 text-white rounded px-1 text-xs py-0.5">10</span>
                     </h2>
@@ -22,58 +23,67 @@
                 <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
-                            <th scope="col" class="py-3 px-6">
+                            <th scope="col" class="px-6 py-3">
                                 SL.
                             </th>
-                            <th scope="col" class="py-3 px-6">
+                            <th scope="col" class="px-6 py-3">
                                 Name
                             </th>
-                            <th scope="col" class="py-3 px-6">
+                            <th scope="col" class="px-6 py-3">
                                 Permissions
                             </th>
-                            <th scope="col" class="py-3 px-6">
+                            <th scope="col" class="px-6 py-3">
                                 Actions
                             </th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                            <th scope="row" class="py-4 px-6">1</th>
-                            <th scope="row" class="py-4 px-6">
-                                Create Post
-                            </th>
-                            <th class="py-4 px-6">
-                                <button id="show-per-icon" onclick="permissionShow('show', '')" type="button"
-                                    data-tooltip-target="show-button" data-bs-toggle="tooltip" data-bs-placement="top">
-                                    <x-svg.eye class="w-6 h-6 text-pink-400" />
-                                </button>
-                                <button class="hidden" id="hide-per-icon" onclick="permissionShow('hide', '')"
-                                    type="button" data-tooltip-target="hide-button" data-bs-toggle="tooltip"
-                                    data-bs-placement="top">
-                                    <x-svg.eye-off class="w-6 h-6 text-pink-400" />
-                                </button>
-                                <div id="permission" class="hidden grid grid-cols-6 gap-1 text-center">
-                                    <div class="bg-green-500 text-white p-1 rounded font-bold">
-                                        hello
-                                    </div>
-                                </div>
-                            </th>
-                            <td class="py-4 px-6 flex gap-2">
-                                <a data-tooltip-target="edit-button" data-bs-toggle="tooltip" data-bs-placement="top"
-                                    href="">
-                                    <x-svg.edit class="w-6 h-6 text-green-400" />
-                                </a>
-                                <form action="" method="POST" class="d-inline">
-                                    <button data-tooltip-target="delete-button" data-bs-toggle="tooltip"
-                                        data-bs-placement="top">
-                                        <x-svg.trash class="w-6 h-6 text-red-400" />
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="10" class="text-center pt-8">Nothing Found.</td>
-                        </tr>
+                        @if ($roles->count())
+                            @foreach ($roles as $role)
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                    <th scope="row" class="px-6 py-4">1</th>
+                                    <th scope="row" class="px-6 py-4">
+                                        {{ $role->name }}
+                                    </th>
+                                    <th class="px-6 py-4">
+                                        <button id="show-per-icon" onclick="permissionShow('show', '')" type="button"
+                                            data-tooltip-target="show-button" data-bs-toggle="tooltip"
+                                            data-bs-placement="top">
+                                            <x-svg.eye class="w-6 h-6 text-pink-400" />
+                                        </button>
+                                        <button class="hidden" id="hide-per-icon" onclick="permissionShow('hide', '')"
+                                            type="button" data-tooltip-target="hide-button" data-bs-toggle="tooltip"
+                                            data-bs-placement="top">
+                                            <x-svg.eye-off class="w-6 h-6 text-pink-400" />
+                                        </button>
+                                        <div id="permission" class="grid hidden grid-cols-6 gap-1 text-center">
+                                            <div class="p-1 font-bold text-white bg-green-500 rounded">
+                                                hello
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <td class="flex gap-2 px-6 py-4">
+                                        <a data-tooltip-target="edit-button" data-bs-toggle="tooltip"
+                                            data-bs-placement="top" href="{{ route('roles.edit', $role->id) }}">
+                                            <x-svg.edit class="w-6 h-6 text-green-400" />
+                                        </a>
+                                        <form action="{{ route('roles.destroy', $role->id) }}" method="POST"
+                                            class="d-inline">
+                                            @method('DELETE')
+                                            @csrf
+                                            <button data-tooltip-target="delete-button" data-bs-toggle="tooltip"
+                                                data-bs-placement="top">
+                                                <x-svg.trash class="w-6 h-6 text-red-400" />
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @else
+                            <tr>
+                                <td colspan="10" class="pt-8 text-center">Nothing Found.</td>
+                            </tr>
+                        @endif
                     </tbody>
                 </table>
                 <div class="p-5">

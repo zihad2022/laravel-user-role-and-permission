@@ -21,7 +21,9 @@ class RoleController extends Controller
      */
     public function index()
     {
-        return view('role.index');
+        $roles = Role::with('permissions')->latest()->get();
+        return $roles;
+        return view('role.index', compact('roles'));
     }
 
     /**
@@ -31,10 +33,10 @@ class RoleController extends Controller
      */
     public function create()
     {
-        // $permissions = Permission::all();
+        $permissions = Permission::all();
         // $permission_groups = User::getPermissionGroup();
 
-        return view('role.create');
+        return view('role.create', compact('permissions'));
     }
 
     /**
@@ -45,11 +47,29 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        // CreateRole::create($request);
+        $request->validate([
+            'name' => 'required',
+        ]);
+
+        $role = new Role();
+        $role->name = $request->name;
+        $role->guard_name = 'web';
+        $role->save();
+
+        // $role->syncPermissions($request->permissions);
+        // dd($request->permissions);
+        $permissions = Permission::whereIn('id', $request->permissions)->get();
+
+
+        $role->syncPermissions($permissions);
 
         session()->flash('success', 'Role Created!');
         return redirect()->route('roles.index');
     }
+
+
+
+
 
     /**
      * Display the specified resource.
@@ -105,18 +125,8 @@ class RoleController extends Controller
      */
     public function destroy($id)
     {
-        abort_if(!userCan('role.delete'), 403);
-
-        try {
-            if (!is_null($role)) {
-                $role->delete();
-            }
-
-            Toastr::success('success', 'Role Deleted!');
-            return back();
-        } catch (\Throwable $th) {
-            Toastr::error('Error', 'Something is wrong');
-            return back();
-        }
+        $role = Role::find($id);
+        $role->delete();
+        return back();
     }
 }
